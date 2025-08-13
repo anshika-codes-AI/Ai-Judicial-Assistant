@@ -1,4 +1,4 @@
-# app.py (Fixed for Event Loop Error)
+# app.py 
 
 import streamlit as st
 import os
@@ -8,7 +8,6 @@ nest_asyncio.apply() # <-- AND ADD THIS LINE
 
 import time
 from langchain_google_genai import GoogleGenerativeAI, GoogleGenerativeAIEmbeddings
-# ... (the rest of your code remains exactly the same) ...
 from langchain_core.prompts import PromptTemplate
 from langchain_community.vectorstores import FAISS
 from langchain.chains import RetrievalQA
