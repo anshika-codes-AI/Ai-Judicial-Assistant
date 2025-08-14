@@ -2,7 +2,7 @@
 __pycache__/
 *.py[codz]
 *$py.class
-
+Project/
 api.txt
 
 # C extensions
