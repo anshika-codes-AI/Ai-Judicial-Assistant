@@ -1,12 +1,11 @@
-# app.py 
+# app.py (Final Version for Local and Deployed)
 
 import streamlit as st
 import os
-import nest_asyncio  # <-- ADD THIS LINE
+import nest_asyncio
 
-nest_asyncio.apply() # <-- AND ADD THIS LINE
+nest_asyncio.apply()
 
-import time
 from langchain_google_genai import GoogleGenerativeAI, GoogleGenerativeAIEmbeddings
 from langchain_core.prompts import PromptTemplate
 from langchain_community.vectorstores import FAISS
@@ -22,41 +21,39 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# --- ORGANIZED API KEY SETUP ---
+# --- FINAL, ROBUST API KEY SETUP ---
 st.sidebar.title("Configuration")
 
-# Function to read the key from api.txt
-def get_api_key():
+api_key = None
+# This block intelligently handles the API key for both deployed and local environments
+try:
+    # This will work when the app is deployed on Streamlit Community Cloud
+    api_key = st.secrets["GOOGLE_API_KEY"]
+    st.sidebar.success("API Key loaded from secrets!", icon="✅")
+except:
+    # This will work when the app is run locally
+    st.sidebar.warning("Could not find Streamlit secret. Checking for local api.txt file.")
     if os.path.exists("api.txt"):
-        with open("api.txt", "r") as f:
-            return f.read().strip()
-    return None
+        api_key = open("api.txt").read().strip()
+        st.sidebar.success("API Key loaded from local api.txt!", icon="✅")
+    else:
+        api_key = st.sidebar.text_input("Please enter your Google API Key:", type="password")
 
-api_key = get_api_key()
-
-if api_key:
-    st.session_state['GOOGLE_API_KEY'] = api_key
-    st.sidebar.success("API Key loaded successfully from api.txt!", icon="✅")
-else:
-    st.sidebar.warning("api.txt file not found.")
-    if 'GOOGLE_API_KEY' not in st.session_state:
-        st.session_state['GOOGLE_API_KEY'] = st.sidebar.text_input("Enter your Google API Key:", type="password")
-
-if not st.session_state.get('GOOGLE_API_KEY'):
-    st.info("Please create an api.txt file or enter your Google API Key in the sidebar to begin.")
+if not api_key:
+    st.info("Please provide your Google API Key in Streamlit Secrets or a local api.txt file.")
     st.stop()
 
-os.environ["GOOGLE_API_KEY"] = st.session_state['GOOGLE_API_KEY']
+os.environ["GOOGLE_API_KEY"] = api_key
 
 
 # --- CACHED AI MODELS AND DATA ---
-# This function loads all necessary resources and is cached for performance.
+# (The rest of your code remains exactly the same)
 @st.cache_resource
 def load_resources():
     try:
         folder_path = 'poc_bail_cases'
         if not os.path.exists(folder_path):
-            return "Error: Directory '{}' not found. Please ensure your 'poc_bail_cases' folder is in the same directory as app.py.".format(folder_path)
+            return "Error: Directory '{}' not found. Please ensure your 'poc_bail_cases' folder is in your GitHub repository.".format(folder_path)
 
         case_documents = []
         for filename in os.listdir(folder_path):
